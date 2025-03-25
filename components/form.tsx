@@ -2,12 +2,7 @@
 
 import { AddressSchema, addressSchema } from '@/lib/schemas/address';
 import { PersonalInfo, personalInfoSchema } from '@/lib/schemas/user/create-user';
-import {
-  ACCEPTED_CV_TYPES,
-  jobPositionEnum,
-  ProfessionSchema,
-  professionSchema,
-} from '@/lib/schemas/user/profession';
+import { jobPositionEnum, ProfessionSchema, professionSchema } from '@/lib/schemas/user/profession';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { defineStepper } from '@stepperize/react';
@@ -26,6 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
+
+type FormError = {
+  statusCode: 400;
+  success: false;
+  error: { [Property in string]: { Code?: number; Message: string } };
+};
 
 const stepper = defineStepper(
   { id: 'personal-info', label: 'Personal Information', icon: User, schema: personalInfoSchema },
@@ -81,11 +82,7 @@ const DemoContent = () => {
     if (!methods.isLast) {
       methods.next();
     } else {
-      const apiErr: {
-        statusCode: 400;
-        success: false;
-        error: { [Property in string]: { Code?: number; Message: string } };
-      } = {
+      const apiErr: FormError = {
         statusCode: 400,
         success: false,
         error: {
@@ -579,10 +576,6 @@ const ProfessionalStep = () => {
     },
   };
 
-  const accept = ACCEPTED_CV_TYPES.join(',');
-
-  console.log(accept);
-
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible">
       <h3 className="mb-6 text-xl font-semibold text-gray-800">Payment Information</h3>
@@ -616,6 +609,8 @@ const ProfessionalStep = () => {
           )}
         />
 
+        {/*
+        Too lazy to validate files
         <FormField
           control={form.control}
           name="cv"
@@ -629,15 +624,16 @@ const ProfessionalStep = () => {
                   name={name}
                   onChange={(e) => onChange(e.target.files?.[0])}
                   type="file"
-                  accept={accept}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
-        {/* <FormField
+        {/* 
+          Too lazy to make a zod FieldArray layout
+        <FormField
           control={form.control}
           name="skills"
           render={({ field: { name, onChange, value = "" } }) => {
