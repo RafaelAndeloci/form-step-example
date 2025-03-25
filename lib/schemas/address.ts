@@ -1,28 +1,28 @@
 import { z } from 'zod';
 export const addressSchema = z.object({
   city: z
-    .string({ message: 'Nome da cidade deve ser informado.' })
-    .nonempty({ message: 'Nome da cidade deve ser informado.' })
-    .min(2, { message: 'Nome da cidade deve conter no mínimo 2 caracteres.' }),
+    .string({ message: 'City name must be informed.' })
+    .nonempty({ message: 'City name must be informed.' })
+    .min(2, { message: 'City name must contain a minimum of 2 characters.' }),
   street: z
-    .string({ message: 'Rua deve ser informada.' })
-    .nonempty({ message: 'Rua deve ser informada.' })
-    .min(4, { message: 'Rua deve ter no mínimo 4 caracteres.' }),
+    .string({ message: 'Street must be informed.' })
+    .nonempty({ message: 'Street must be informed.' })
+    .min(4, { message: 'Street deve ter no mínimo 4 characters.' }),
   number: z
     .number()
     .int()
-    .nonnegative({ message: 'Número da rua não pode ser negativo.' })
-    .min(1, { message: 'Número da rua deve ser no mínimo 1.' })
-    .max(999999999, { message: 'Número da rua deve ter no máximo 9 dígitos.' }),
+    .nonnegative({ message: 'Street number must be non negative.' })
+    .min(1, { message: 'Street number must be at minimum 1.' })
+    .max(999999999, { message: 'Street number must contain a maximum of 9 digits.' }),
   zipCode: z
-    .string({ message: 'Cep deve ser informado.' })
-    .nonempty({ message: 'Cep deve ser informado.' })
-    .min(8, { message: 'Cep deve conter no mínimo 8 caracteres.' })
-    .max(8, { message: 'Cep deve conter no máximo 8 caracteres.' }),
+    .string({ message: 'Cep must be informed.' })
+    .nonempty({ message: 'Cep must be informed.' })
+    .min(8, { message: 'Cep must contain a minimum of 8 characters.' })
+    .max(8, { message: 'Cep deve conter no máximo 8 characters.' }),
   state: z
-    .string({ message: 'Estado deve ser informado.' })
-    .nonempty({ message: 'Estado deve ser informado.' })
-    .min(2, { message: 'Estado deve conter no mínimo 2 caracteres.' })
-    .max(24, { message: 'Estado deve conter no máximo 24 caracteres.' }),
+    .string({ message: 'Estado must be informed.' })
+    .nonempty({ message: 'Estado must be informed.' })
+    .min(2, { message: 'Estado must contain a minimum of 2 characters.' })
+    .max(24, { message: 'Estado deve conter no máximo 24 characters.' }),
 });
 export type AddressSchema = z.infer<typeof addressSchema>;

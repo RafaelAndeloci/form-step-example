@@ -1,31 +1,27 @@
 import { addressSchema } from '@/lib/schemas/address';
 import { multiFactorSchema } from '@/lib/schemas/multi-factor';
-import { addYears } from 'date-fns';
 import { z } from 'zod';
 import { professionSchema } from './profession';
 
 export const personalInfoSchema = z.object({
   name: z
-    .string({ message: 'Nome deve ser informado' })
-    .nonempty({ message: 'Nome deve ser informado' })
-    .min(3, { message: 'Nome deve conter no mínimo 3 caracteres.' })
-    .max(50, { message: 'Nome deve conter no máximo 50 caracteres.' }),
+    .string({ message: 'Name must be informed.' })
+    .nonempty({ message: 'Name must be informed.' })
+    .min(3, { message: 'Name must contain a minimum of 3 characters.' })
+    .max(50, { message: 'Name must contain a maximum of 50 characters.' }),
   userName: z
-    .string({ message: 'Nome de usuário deve ser informado' })
-    .nonempty({ message: 'Nome de usuário deve ser informado' })
-    .min(3, { message: 'Nome de usuário deve conter no mínimo 3 caracteres.' })
-    .max(15, { message: 'Nome de usuário deve conter no máximo 15 caracteres.' })
+    .string({ message: 'User Name must be informed.' })
+    .nonempty({ message: 'User Name must be informed.' })
+    .min(3, { message: 'User Name must contain a minimum of 3 characters.' })
+    .max(15, { message: 'User Name must contain a maximum of 15 characters.' })
     .regex(/^[a-z0-9_]+$/g, {
-      message: 'Nome de usuário não pode conter espaços ou caracteres especiais.',
+      message: 'User Name cannot contain special characters or spaces.',
     }),
   email: z
-    .string({ message: 'Email deve ser informado.' })
-    .nonempty({ message: 'Email deve ser informado.' })
-    .email({ message: 'Email no formato inválido.' }),
-  birthDate: z
-    .date({ message: 'Data no formato inválido' })
-    .max(addYears(new Date(), 100), { message: 'Usuário meio velho para usar o sistema, não? 🤔' })
-    .default(new Date()),
+    .string({ message: 'Email must be informed.' })
+    .nonempty({ message: 'Email must be informed.' })
+    .email({ message: 'Email in invalid format.' }),
+  birthDate: z.date({ message: 'Data in invalid format' }).default(new Date()),
 });
 
 export const createUserRequestSchema = multiFactorSchema.extend({
