@@ -60,7 +60,7 @@ export const DemoSection = ({ className }: { className?: string }) => {
 function createFieldMap(steps: { id: string; schema: ZodObject<any> }[]) {
   return steps.flatMap((step) => {
     const iterable = step.schema.keyof();
-    //@ts-ignore
+    //@ts-expect-error ZodObject of type any will always return options as never
     return iterable.options.map((key) => ({ id: step.id, key }));
   });
 }
