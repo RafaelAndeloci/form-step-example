@@ -20,7 +20,7 @@ export const ACCEPTED_CV_TYPES = [
 export const professionSchema = z.object({
   position: jobPositionEnum,
   skills: z.array(skillsSchema).optional(),
-  cv: createFileSchema(MAX_CV_FILE_SIZE, ACCEPTED_CV_TYPES, 'CV'),
+  cv: createFileSchema(MAX_CV_FILE_SIZE, ACCEPTED_CV_TYPES, 'CV').optional(),
 });
 
 export type JobPositionEnum = z.infer<typeof jobPositionEnum>;

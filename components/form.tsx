@@ -15,7 +15,7 @@ import { BriefcaseBusiness, CheckCircle, Home, User } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import * as React from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
-import { z } from 'zod';
+import { z, ZodObject } from 'zod';
 import { Datepicker } from './ui/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import {
@@ -57,24 +57,70 @@ export const DemoSection = ({ className }: { className?: string }) => {
 
 // #region DemoContent
 
+function createFieldMap(steps: { id: string; schema: ZodObject<any> }[]) {
+  return steps.flatMap((step) => {
+    const iterable = step.schema.keyof();
+    //@ts-ignore
+    return iterable.options.map((key) => ({ id: step.id, key }));
+  });
+}
 const DemoContent = () => {
   const methods = stepper.useStepper();
-
   const form = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(methods.current.schema),
     defaultValues: {
       birthDate: new Date(),
+      Token: '',
+      ElectronicSignature: '',
     },
   });
+
+  const map = createFieldMap(methods.all);
   function handleSubmitUserInfo(data: any) {
-    console.log('Submitted data: ', data);
-    methods.next();
+    if (!methods.isLast) {
+      methods.next();
+    } else {
+      const apiErr: {
+        statusCode: 400;
+        success: false;
+        error: { [Property in string]: { Code?: number; Message: string } };
+      } = {
+        statusCode: 400,
+        success: false,
+        error: {
+          name: { Message: 'Nome do usuário não pode ser assim :/' },
+          birthDate: { Message: 'Data de aniversário meio paia :/' },
+          position: { Message: 'Vish, esse cargo ai é meio ruim né? :/' },
+        },
+      };
+
+      Object.keys(apiErr.error).forEach((err) => {
+        map.forEach((mapItem) => {
+          if (err === mapItem.key) {
+            methods.goTo(mapItem.id);
+            methods.beforeGoTo(mapItem.id, () => {
+              form.setError(
+                //@ts-ignore
+                `${mapItem.key}`,
+                {
+                  message: apiErr.error[err].Message,
+                },
+                { shouldFocus: true }
+              );
+
+              return true;
+            });
+          }
+        });
+      });
+    }
   }
 
-  form.watch((values) => {
-    console.log('values: ', values);
-  });
+  function handleReset() {
+    form.reset();
+    methods.goTo('personal-info');
+  }
 
   const isComplete = methods.isLast;
   const isValid = form.formState.isValid;
@@ -150,7 +196,7 @@ const DemoContent = () => {
                       return <ProfessionalStep />;
                     },
                     success: () => {
-                      return <CompletionScreen onReset={() => alert('Finished')} />;
+                      return <CompletionScreen onReset={handleReset} />;
                     },
                   })}
                 </motion.div>
@@ -181,10 +227,10 @@ const DemoContent = () => {
                 >
                   <motion.button
                     type="submit"
-                    className="rounded-md bg-gradient-to-r from-indigo-700 to-purple-700 px-6 py-2 text-gray-100 shadow-md transition-all duration-300 hover:from-indigo-800 hover:to-purple-800 hover:shadow-indigo-700/30 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="cursor-pointer rounded-md bg-gradient-to-r from-indigo-700 to-purple-700 px-6 py-2 text-gray-100 shadow-md transition-all duration-300 hover:from-indigo-800 hover:to-purple-800 hover:shadow-indigo-700/30 disabled:cursor-not-allowed disabled:opacity-60"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    disabled={!isValid}
+                    // disabled={!isValid}
                   >
                     {isComplete ? 'Submit' : 'Next'}
                   </motion.button>
@@ -214,7 +260,7 @@ const InputField = ({
   label: string;
   name: string;
   type?: React.HTMLInputTypeAttribute;
-  value: string;
+  value: string | number | readonly string[] | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
@@ -282,7 +328,7 @@ const StepperHeader = ({
               key={step.id}
               className="relative z-10 flex flex-shrink-0 flex-col items-center"
               onClick={async () => {
-                const isValid = await form.trigger();
+                const isValid = form.formState.isValid;
                 if (!isValid) return;
                 methods.goTo(step.id);
               }}
@@ -344,6 +390,7 @@ const StepperHeader = ({
 
 const PersonalInfoStep = () => {
   const form = useFormContext<PersonalInfo>();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -545,7 +592,7 @@ const ProfessionalStep = () => {
           name="position"
           render={({ field: { name, onChange, value = '' } }) => (
             <FormItem className="w-full">
-              <FormLabel>Street</FormLabel>
+              <FormLabel>Position</FormLabel>
               <FormControl>
                 <Select onValueChange={onChange} name={name} value={value}>
                   <SelectTrigger>
@@ -578,9 +625,9 @@ const ProfessionalStep = () => {
               <FormControl>
                 <InputField
                   label="CV"
-                  name={name}
                   value={value}
-                  onChange={onChange}
+                  name={name}
+                  onChange={(e) => onChange(e.target.files?.[0])}
                   type="file"
                   accept={accept}
                 />
